@@ -13,8 +13,11 @@ class Feedly_notify:
   def check(self):
     r = requests.get("https://cloud.feedly.com/v3/streams/contents?streamId="+self.streamid,headers=self.headers)
     contents = json.loads(r.text)
-    items = contents["items"]
-    items = filter(lambda x:x["unread"],items)
+    try:
+      items = contents["items"]
+      items = filter(lambda x:x["unread"],items)
+    except:
+      items = []
     for item in items:
       try:
         visual = item["visual"]["url"]
@@ -24,7 +27,6 @@ class Feedly_notify:
         url = item["alternate"][0]["href"]
       except:
         url = item["originId"]
-      print(json.dumps(item))
       yield item["title"],url,visual,item["id"]
       
   def notify(self,title,url,icon):
